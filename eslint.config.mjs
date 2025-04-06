@@ -15,8 +15,6 @@ export default [
         // Node.js globals
         process: 'readonly',
         __dirname: 'readonly',
-        // Add any other globals your project uses
-        PokemonService: 'readonly',
       }
     },
     files: ['**/*.js'],
