@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pokémon Memory Game: Core Mechanics Assignment</title>
+  <link rel="shortcut icon" href="./microscope.png" type="image/png">
+  <link rel="stylesheet" href="header.css">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Additional styles for this assignment page */
+    .step-container {
+      margin-bottom: 30px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .step-header {
+      background-color: #f8f9fa;
+      padding: 15px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .step-header h3 {
+      margin: 0;
+      color: #0056b3;
+    }
+
+    .step-content {
+      padding: 15px;
+    }
+
+    .code-sample {
+      background-color: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 25px 0;
+      border: 1px solid #ddd;
+    }
+
+    pre {
+      background-color: #f5f5f5;
+      padding: 15px;
+      border-radius: 5px;
+      overflow-x: auto;
+      margin: 20px 0;
+      border-left: 4px solid #0056b3;
+    }
+
+    code {
+      font-family: 'Courier New', Courier, monospace;
+    }
+
+    .tip {
+      background-color: #d1ecf1;
+      padding: 15px;
+      border-radius: 5px;
+      margin: 20px 0;
+      border-left: 4px solid #17a2b8;
+    }
+
+    .warning {
+      background-color: #fff3cd;
+      padding: 15px;
+      border-radius: 5px;
+      margin: 20px 0;
+      border-left: 4px solid #ffc107;
+    }
+
+    .grading-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+
+    .grading-table th,
+    .grading-table td {
+      border: 1px solid #ddd;
+      padding: 8px 12px;
+    }
+
+    .grading-table th {
+      background-color: #f2f2f2;
+      text-align: left;
+    }
+
+    .grading-table tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="container">
+      <nav class="site-nav">
+        <div class="logo">
+          <a href="index.html">
+            <img src="./microscope.png" alt="microscope drawing" class="logo-img">
+            <span>Pokémon Memory Game</span>
+          </a>
+        </div>
+        <ul class="nav-links">
+          <li><a href="index.html" class="nav-link">Home</a></li>
+          <li><a href="assignment.html" class="nav-link">Assignment</a></li>
+
+          <li><a href="git.html" class="nav-link">Git Branch</a></li>
+          <li><a href="errors.html" class="nav-link">Handle Errors</a></li>
+          <li><a href="gamedev.html" class="nav-link">Game Dev</a></li>
+          <li><a href="debugging.html" class="nav-link">JS Debugging</a></li>
+          <li><a href="esm-vite.html" class="nav-link">ES Modules &amp; Vite</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <div class="header">
+    <h1>Pokémon Memory Game: Core Mechanics Assignment</h1>
+    <p>Transform the Pokémon Card Flip app into a fully functioning memory matching game by implementing essential game
+      mechanics.</p>
+  </div>
+
+  <div class="card">
+    <h2>Assignment Overview</h2>
+    <p>In this assignment, you'll transform the Pokémon Card Flip app into a simple memory matching game by implementing
+      the essential game mechanics. You'll work through a series of git branches, each focusing on a specific feature
+      that you can implement and test independently.</p>
+
+    <h3>Learning Objectives</h3>
+    <ul>
+      <li>Apply JavaScript best practices including deep copies and functional programming</li>
+      <li>Work with async/await and Promises for asynchronous operations</li>
+      <li>Use git branches effectively for feature development</li>
+      <li>Implement core game mechanics with clean, maintainable code</li>
+      <li>Apply proper error handling and defensive programming</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>Project Overview</h2>
+    <p>The final game will include these core mechanics:</p>
+    <ol>
+      <li>Pairs of identical Pokémon cards</li>
+      <li>Shuffled card positions</li>
+      <li>Card selection tracking</li>
+      <li>Match detection</li>
+      <li>Flipping non-matching cards back</li>
+      <li>Game completion detection</li>
+    </ol>
+
+    <h3>Prerequisites</h3>
+    <ul>
+      <li>The existing Pokémon Card Flip repository</li>
+      <li>Basic git knowledge</li>
+      <li>Understanding of JavaScript functions and DOM manipulation</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="step-container">
+      <div class="step-header">
+        <h3>Step 1: Create Pokémon Pairs</h3>
+      </div>
+      <div class="step-content">
+        <p><strong>Branch:</strong> <code>feature/create-random-pairs</code></p>
+
+        <p>Transform the application to create pairs of cards with the same Pokémon rather than all unique Pokémon.</p>
+
+        <h4>Tasks:</h4>
+        <ol>
+          <li>Modify the <code>fetchAndAssignPokemon()</code> function to fetch 6 unique Pokémon instead of 12</li>
+          <li>Create pairs by duplicating each Pokémon in the array</li>
+          <li>Add a simple shuffle function to randomize the order of cards</li>
+          <li>Test the changes by running the app and verifying that 6 different Pokémon appear twice each in the grid
+          </li>
+        </ol>
+
+        <div class="code-sample">
+          <h4>Code Guidelines:</h4>
+          <pre><code>async function fetchAndAssignPokemon() {
+  try {
+    // TODO: Fetch 6 Pokémon instead of 12
+    const pokemonList = await PokemonService.fetchMultipleRandomPokemon(6);
+
+    // TODO: Create pairs by duplicating each Pokémon
+    // Use a more functional approach with map and spread operator
+    const pokemonPairs = [];
+    // Your code here to create pairs (hint: consider using flatMap)
+
+    // TODO: Shuffle the pairs
+    const shuffledPairs = shuffleArray(pokemonPairs);
+
+    // Assign Pokémon to cards - use a more robust approach with error checking
+    for (let i = 0; i &lt; Math.min(CARD_COUNT, shuffledPairs.length); i++) {
+      if (cards[i] && shuffledPairs[i]) {
+        assignPokemonToCard(cards[i], shuffledPairs[i]);
+      }
+    }
+  } catch (error) {
+    console.error('Error fetching and assigning Pokemon:', error);
+    // Consider adding user-friendly error handling here
+    showErrorMessage('Failed to load Pokémon. Please try refreshing the page.');
+  }
+}
+
+// TODO: Implement a shuffle function
+function shuffleArray(array) {
+  // Create a deep copy of the array to avoid modifying the original
+  const arrayCopy = structuredClone(array);
+
+  // Implement shuffling on the copy (minimum requirement: use sort with random function)
+  // For extra credit: implement the Fisher-Yates shuffle algorithm
+
+  return arrayCopy;
+}</code></pre>
+        </div>
+
+        <h4>Testing:</h4>
+        <ol>
+          <li>Load the app in your browser</li>
+          <li>Verify that you see multiple instances of the same Pokémon when flipping cards</li>
+          <li>Reload a few times to confirm the positions are randomized</li>
+        </ol>
+
+        <div class="tip">
+          <p><strong>Potential Extensions:</strong></p>
+          <ul>
+            <li>Implement the Fisher-Yates shuffle algorithm for better randomization</li>
+            <li>Add a "seed" option for reproducible shuffles (for testing)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="step-container">
+      <div class="step-header">
+        <h3>Step 2: Track Card Selections</h3>
+      </div>
+      <div class="step-content">
+        <p><strong>Branch:</strong> <code>feature/track-selections</code></p>
+
+        <p>Modify the click handler to track which cards have been flipped during a turn.</p>
+
+        <h4>Tasks:</h4>
+        <ol>
+          <li>Add variables to track the first and second card selections</li>
+          <li>Update the click handler to assign selected cards to these variables</li>
+          <li>Prevent selecting more than two cards at once</li>
+          <li>Prevent selecting the same card twice</li>
+        </ol>
+
+        <div class="code-sample">
+          <h4>Code Guidelines:</h4>
+          <pre><code>// TODO: Add state tracking variables using meaningful names
+// Use let for variables that will change
+let firstSelectedCard = null;
+let secondSelectedCard = null;
+// Flag to prevent interaction during card processing
+let isProcessingPair = false;
+
+function handleCardClick(event) {
+  // Find the clicked card using closest for better performance and readability
+  const card = event.target.closest('.card');
+
+  // Early return pattern for better readability
+  if (!card) {
+    return; // Not a card or child of card
+  }
+
+  // TODO: Add selection logic
+  // Guard clauses for better readability
+  if (card.classList.contains('flipped') || card.classList.contains('matched')) {
+    return; // Already flipped or matched
+  }
+
+  // Check if we're currently processing a pair (prevent clicking during timeout)
+  if (isProcessingPair) {
+    return;
+  }
+
+  // Flip the card
+  card.classList.add('flipped');
+
+  // TODO: Implement selection tracking
+  // Your code here to track first and second selections
+}</code></pre>
+        </div>
+
+        <h4>Testing:</h4>
+        <ol>
+          <li>Click on the first card - it should flip and stay flipped</li>
+          <li>Click on a second card - it should flip and stay flipped</li>
+          <li>Try clicking more cards - they should not flip until the next step is implemented</li>
+        </ol>
+
+        <div class="tip">
+          <p><strong>Potential Extensions:</strong></p>
+          <ul>
+            <li>Add visual cues to show which cards are currently selected</li>
+            <li>Add a counter for the current turn number</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="step-container">
+      <div class="step-header">
+        <h3>Step 3: Implement Match Checking</h3>
+      </div>
+      <div class="step-content">
+        <p><strong>Branch:</strong> <code>feature/match-detection</code></p>
+
+        <p>Add logic to check if the two selected cards match and handle both match and non-match cases.</p>
+
+        <h4>Tasks:</h4>
+        <ol>
+          <li>Create a function to check if two cards show the same Pokémon</li>
+          <li>Keep matched cards face up</li>
+          <li>Flip non-matching cards back over after a short delay</li>
+          <li>Reset the selection after checking</li>
+        </ol>
+
+        <div class="code-sample">
+          <h4>Code Guidelines:</h4>
+          <pre><code>function handleCardClick(event) {
+  // ...existing code...
+
+  // Flip the card
+  card.classList.add('flipped');
+
+  // Track selections
+  if (!firstCard) {
+    // First card selection
+    firstCard = card;
+  } else if (firstCard !== card) {
+    // Second card selection
+    secondCard = card;
+
+    // TODO: Check for a match
+    checkForMatch();
+  }
+}
+
+// TODO: Implement match checking
+function checkForMatch() {
+  // Get Pokémon data from both cards with error handling
+  let firstPokemonData, secondPokemonData;
+
+  try {
+    firstPokemonData = JSON.parse(firstSelectedCard.dataset.pokemon);
+    secondPokemonData = JSON.parse(secondSelectedCard.dataset.pokemon);
+  } catch (error) {
+    console.error('Error parsing Pokémon data:', error);
+    resetSelection();
+    return;
+  }
+
+  // Guard clause if either data is missing
+  if (!firstPokemonData || !secondPokemonData) {
+    console.error('Missing Pokémon data');
+    resetSelection();
+    return;
+  }
+
+  // TODO: Compare Pokémon and handle match/non-match cases
+  // Use a constant time comparison with strict equality
+  // Your code here to compare Pokémon IDs and handle the result
+}
+
+// TODO: Implement match handling
+function handleMatch() {
+  // Your code here to handle matching cards
+}
+
+// TODO: Implement non-match handling
+function handleNonMatch() {
+  // Set processing flag to prevent further interaction during timeout
+  isProcessingPair = true;
+
+  // Use a promise with setTimeout for better async handling
+  return new Promise(resolve =&gt; {
+    setTimeout(() =&gt; {
+      // Flip cards back over
+      firstSelectedCard.classList.remove('flipped');
+      secondSelectedCard.classList.remove('flipped');
+
+      // Reset selection after animation completes
+      resetSelection();
+
+      // Release the processing lock
+      isProcessingPair = false;
+
+      resolve();
+    }, 1000); // 1 second delay
+  });
+}
+
+// TODO: Implement selection reset
+function resetSelection() {
+  // Your code here to reset card selections
+}</code></pre>
+        </div>
+
+        <h4>Testing:</h4>
+        <ol>
+          <li>Select two matching cards - they should stay face up</li>
+          <li>Select two non-matching cards - they should flip back over after a delay</li>
+          <li>Verify you can continue making selections after cards are matched or flipped back</li>
+        </ol>
+
+        <div class="tip">
+          <p><strong>Potential Extensions:</strong></p>
+          <ul>
+            <li>Add animation effects for matches/non-matches</li>
+            <li>Add sound effects for matches/non-matches</li>
+            <li>Add a visual indication that cards are matched (border change, etc.)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="step-container">
+      <div class="step-header">
+        <h3>Step 4: Detect Game Completion</h3>
+      </div>
+      <div class="step-content">
+        <p><strong>Branch:</strong> <code>feature/game-completion</code></p>
+
+        <p>Add logic to detect when all pairs have been matched and notify the player.</p>
+
+        <h4>Tasks:</h4>
+        <ol>
+          <li>Track the number of matched pairs</li>
+          <li>Check if all pairs have been found after each match</li>
+          <li>Show a simple completion message when all pairs are matched</li>
+        </ol>
+
+        <div class="code-sample">
+          <h4>Code Guidelines:</h4>
+          <pre><code>// TODO: Add game state tracking
+let matchedPairs = 0;
+const TOTAL_PAIRS = 6;
+
+function handleMatch() {
+  // Mark cards as matched (keep face up)
+  firstCard.classList.add('matched');
+  secondCard.classList.add('matched');
+
+  // TODO: Increment match counter and check for game completion
+  // Your code here to update matched pairs and check if game is done
+
+  // Reset selection
+  resetSelection();
+}
+
+// TODO: Implement game completion check with a functional approach
+function checkGameCompletion() {
+  // Your code here to check if all pairs are matched
+  // Consider using querySelectorAll and comparing count vs total
+  // For bonus points: use Array.from().every() for a functional approach
+}
+
+// TODO: Implement game completion notification
+function showGameComplete() {
+  // Your code here to notify the player
+
+  // Avoid using alert() for a better user experience
+  // Instead, consider creating a simple modal or message element:
+
+  // 1. Create a container for the message
+  const messageContainer = document.createElement('div');
+  messageContainer.classList.add('completion-message');
+
+  // 2. Add the message content
+  messageContainer.innerHTML = `
+    <h2>Congratulations!</h2>
+    <p>You found all the Pokémon pairs!</p>
+    <button id="play-again">Play Again</button>
+  `;
+
+  // 3. Add to the page
+  document.querySelector('.container').appendChild(messageContainer);
+
+  // 4. Set up the play again button
+  document.getElementById('play-again').addEventListener('click', () =&gt; {
+    messageContainer.remove();
+    resetGame();
+  });
+}</code></pre>
+        </div>
+
+        <h4>Testing:</h4>
+        <ol>
+          <li>Match all pairs of cards</li>
+          <li>Verify the completion message appears</li>
+          <li>Test that the message only appears when all pairs are matched</li>
+        </ol>
+
+        <div class="tip">
+          <p><strong>Potential Extensions:</strong></p>
+          <ul>
+            <li>Add a more visually appealing game completion overlay</li>
+            <li>Track and display how many attempts it took to find all pairs</li>
+            <li>Add a restart button to play again with new Pokémon</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="step-container">
+      <div class="step-header">
+        <h3>Final Step: Code Review and Refactoring</h3>
+      </div>
+      <div class="step-content">
+        <p><strong>Branch:</strong> <code>feature/code-cleanup</code></p>
+
+        <p>Review your implementation and clean up the code before merging into main.</p>
+
+        <h4>Tasks:</h4>
+        <ol>
+          <li>Check for any bugs or edge cases</li>
+          <li>Refactor any repetitive code</li>
+          <li>Add comments to explain key functionality</li>
+          <li>Update any UI text to reflect the new game mechanics</li>
+        </ol>
+
+        <h4>Testing:</h4>
+        <ol>
+          <li>Complete a full game cycle from start to finish</li>
+          <li>Make sure all features work as expected</li>
+          <li>Test on different devices/browsers if possible</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Submission Instructions</h2>
+    <p>After completing all steps:</p>
+    <ol>
+      <li>Merge your branches into the main branch</li>
+      <li>Push all changes to your remote repository</li>
+      <li>Deploy to Netlify and change its name</li>
+      <li>Submit the repository URL and Netlify URL</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h2>Extensions for Further Development</h2>
+    <p>If you complete the core requirements and want to enhance your game, consider these additional features:</p>
+
+    <div class="step-container">
+      <div class="step-header">
+        <h3>Score Tracking</h3>
+      </div>
+      <div class="step-content">
+        <ul>
+          <li>Count and display the number of attempts</li>
+          <li>Calculate and display a star rating based on attempts</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="step-container">
+      <div class="step-header">
+        <h3>Timer</h3>
+      </div>
+      <div class="step-content">
+        <ul>
+          <li>Add a countdown timer or elapsed time display</li>
+          <li>Set difficulty levels with different time limits</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="step-container">
+      <div class="step-header">
+        <h3>Animation Effects</h3>
+      </div>
+      <div class="step-content">
+        <ul>
+          <li>Add flip animations for cards</li>
+          <li>Add special effects for matches</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="step-container">
+      <div class="step-header">
+        <h3>Multiple Difficulty Levels</h3>
+      </div>
+      <div class="step-content">
+        <ul>
+          <li>Easy: 6 pairs (current)</li>
+          <li>Medium: 8 pairs</li>
+          <li>Hard: 12 pairs</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="step-container">
+      <div class="step-header">
+        <h3>Theme Options</h3>
+      </div>
+      <div class="step-content">
+        <ul>
+          <li>Filter Pokémon by type (fire, water, etc.)</li>
+          <li>Allow players to choose specific generations</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="warning">
+      <p><strong>Remember:</strong> Create a new feature branch for each extension you implement!</p>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>Pokémon and Pokémon character names are trademarks of Nintendo. This educational project is not affiliated with
+      or endorsed by Nintendo, The Pokémon Company, or Game Freak.</p>
+    <p>PokeAPI data sourced from <a href="https://pokeapi.co/">pokeapi.co</a></p>
+  </div>
+</body>
+
+</html>

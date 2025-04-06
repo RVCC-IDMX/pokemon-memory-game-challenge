@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Graceful Failures in User Interfaces - Pokémon Memory Game</title>
+  <link rel="shortcut icon" href="./microscope.png" type="image/png">
+  <link rel="stylesheet" href="header.css">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Additional styles for this tutorial */
+    pre {
+      background-color: #f5f5f5;
+      padding: 15px;
+      border-radius: 5px;
+      overflow-x: auto;
+      margin: 20px 0;
+      border-left: 4px solid #0056b3;
+    }
+
+    code {
+      font-family: 'Courier New', Courier, monospace;
+    }
+
+    .code-sample {
+      background-color: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 25px 0;
+      border: 1px solid #ddd;
+    }
+
+    .output {
+      background-color: #f0f8ff;
+      padding: 10px 15px;
+      border-radius: 5px;
+      margin-top: 10px;
+      border-left: 4px solid #28a745;
+    }
+
+    .warning {
+      background-color: #fff3cd;
+      padding: 15px;
+      border-radius: 5px;
+      margin: 20px 0;
+      border-left: 4px solid #ffc107;
+    }
+
+    .error {
+      background-color: #f8d7da;
+      padding: 15px;
+      border-radius: 5px;
+      margin: 20px 0;
+      border-left: 4px solid #dc3545;
+    }
+
+    .success {
+      background-color: #d4edda;
+      padding: 15px;
+      border-radius: 5px;
+      margin: 20px 0;
+      border-left: 4px solid #28a745;
+    }
+
+    .example-comparison {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin: 30px 0;
+    }
+
+    .example-box {
+      flex: 1;
+      min-width: 300px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 15px;
+    }
+
+    .example-box h4 {
+      margin-top: 0;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 10px;
+    }
+
+    .highlight {
+      background-color: #ffffcc;
+      padding: 2px 4px;
+    }
+
+    .error-message {
+      max-width: 100%;
+      background-color: rgba(220, 53, 69, 0.1);
+      padding: 15px;
+      border-radius: 8px;
+      border: 1px solid rgba(220, 53, 69, 0.3);
+      margin: 20px 0;
+      display: flex;
+      align-items: center;
+    }
+
+    .error-message .error-icon {
+      font-size: 24px;
+      color: #dc3545;
+      margin-right: 15px;
+    }
+
+    .error-message .error-content {
+      flex: 1;
+    }
+
+    .error-message h4 {
+      margin-top: 0;
+      color: #dc3545;
+    }
+
+    .error-message p {
+      margin-bottom: 0;
+    }
+
+    .error-message .retry-btn {
+      background-color: #0056b3;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .loading-spinner {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background-color: rgba(0, 0, 0, 0.05);
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(0, 0, 0, 0.1);
+      border-left-color: #0056b3;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .before-after {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin: 20px 0;
+    }
+
+    .code-block {
+      flex: 1;
+      min-width: 300px;
+    }
+
+    .code-block h4 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      color: #0056b3;
+    }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="container">
+      <nav class="site-nav">
+        <div class="logo">
+          <a href="index.html">
+            <img src="./microscope.png" alt="microscope drawing" class="logo-img">
+            <span>Pokémon Memory Game</span>
+          </a>
+        </div>
+        <ul class="nav-links">
+          <li><a href="index.html" class="nav-link">Home</a></li>
+          <li><a href="assignment.html" class="nav-link">Assignment</a></li>
+
+          <li><a href="git.html" class="nav-link">Git Branch</a></li>
+          <li><a href="errors.html" class="nav-link">Handle Errors</a></li>
+          <li><a href="gamedev.html" class="nav-link">Game Dev</a></li>
+          <li><a href="debugging.html" class="nav-link">JS Debugging</a></li>
+          <li><a href="esm-vite.html" class="nav-link">ES Modules & Vite</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <div class="header">
+    <h1>Graceful Failures in User Interfaces</h1>
+    <p>Learn how to handle errors and edge cases in your Pokémon Memory Game to create a smooth, frustration-free player
+      experience.</p>
+  </div>
+
+  <div class="card">
+    <h2>Why Error Handling Matters in Games</h2>
+
+    <p>In an ideal world, our code would run flawlessly every time. But in reality, many things can go wrong:</p>
+
+    <ul>
+      <li>Network requests to the PokéAPI might fail</li>
+      <li>Images might not load properly</li>
+      <li>Players might perform unexpected actions</li>
+      <li>JavaScript errors might occur in our game logic</li>
+    </ul>
+
+    <p>Without proper error handling, these issues lead to:</p>
+
+    <ul>
+      <li>Games that freeze or crash</li>
+      <li>Blank screens with no feedback</li>
+      <li>Frustrated players who abandon your game</li>
+      <li>Difficult-to-debug issues</li>
+    </ul>
+
+    <p>By implementing graceful failure handling, we create a resilient game that can recover from problems and keep
+      players engaged even when things don't go perfectly.</p>
+
+    <div class="example-comparison">
+      <div class="example-box">
+        <h4>Poor Error Handling</h4>
+        <div class="error-message" style="margin: 0">
+          <div class="error-icon">⚠️</div>
+          <div class="error-content">
+            <h4>Error: Uncaught TypeError</h4>
+            <p>Cannot read property 'sprite' of undefined</p>
+          </div>
+        </div>
+        <p>Technical errors exposed to players create confusion and frustration.</p>
+      </div>
+      <div class="example-box">
+        <h4>Graceful Error Handling</h4>
+        <div class="error-message"
+          style="margin: 0; background-color: rgba(0, 86, 179, 0.1); border-color: rgba(0, 86, 179, 0.3);">
+          <div class="error-icon" style="color: #0056b3;">ℹ️</div>
+          <div class="error-content">
+            <h4 style="color: #0056b3;">We're having trouble loading Pokémon data</h4>
+            <p>Please wait while we try again or click retry below.</p>
+            <button class="retry-btn">Retry</button>
+          </div>
+        </div>
+        <p>User-friendly messages with recovery options keep players engaged.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Common Failure Points in a Memory Game</h2>
+
+    <p>Let's identify the most common points of failure in our Pokémon Memory Game:</p>
+
+    <h3>1. API Data Fetching</h3>
+    <p>The most likely point of failure is when fetching Pokémon data from the PokéAPI. Network issues, API rate limits,
+      or server problems can all cause this to fail.</p>
+
+    <h3>2. Image Loading</h3>
+    <p>Pokémon sprites might fail to load due to network issues or broken image URLs.</p>
+
+    <h3>3. JSON Parsing</h3>
+    <p>If the API response isn't properly formatted or if we try to parse invalid JSON, errors can occur.</p>
+
+    <h3>4. DOM Operations</h3>
+    <p>Manipulating the DOM incorrectly or trying to access elements that don't exist can cause errors.</p>
+
+    <h3>5. Game Logic</h3>
+    <p>Bugs in our game logic can lead to unexpected states where the game becomes unplayable.</p>
+
+    <div class="warning">
+      <h3>Don't Ignore Errors</h3>
+      <p>The worst approach to error handling is to ignore errors completely. Always have at least a basic level of
+        error handling for each potential failure point.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Try/Catch for Error Handling</h2>
+
+    <p>The primary tool for error handling in JavaScript is the try/catch block. It allows you to "try" running some
+      code and "catch" any errors that occur.</p>
+
+    <div class="before-after">
+      <div class="code-block">
+        <h4>Before: No Error Handling</h4>
+        <div class="code-sample" style="margin: 0">
+          <pre><code>function fetchPokemon() {
+  fetch('https://pokeapi.co/api/v2/pokemon/1')
+    .then(response => response.json())
+    .then(data => {
+      displayPokemon(data);
+    });
+}</code></pre>
+        </div>
+      </div>
+      <div class="code-block">
+        <h4>After: With Error Handling</h4>
+        <div class="code-sample" style="margin: 0">
+          <pre><code>function fetchPokemon() {
+  fetch('https://pokeapi.co/api/v2/pokemon/1')
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    })
+    .then(data => {
+      displayPokemon(data);
+    })
+    .catch(error => {
+      console.error('Fetch error:', error);
+      showErrorMessage('Failed to load Pokémon data');
+    });
+}</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <p>For our memory game, we should add error handling to the Pokémon fetching function:</p>
+
+    <div class="code-sample">
+      <h4>Error Handling in Async Function</h4>
+      <pre><code>async function fetchAndAssignPokemon() {
+  try {
+    // Show loading indicator
+    showLoading();
+
+    // Fetch Pokémon data
+    const pokemonList = await PokemonService.fetchMultipleRandomPokemon(6);
+
+    // Create pairs by duplicating each Pokémon
+    const pokemonPairs = [];
+    pokemonList.forEach(pokemon => {
+      pokemonPairs.push({...pokemon, pairId: pokemon.id});
+      pokemonPairs.push({...pokemon, pairId: pokemon.id});
+    });
+
+    // Shuffle the pairs
+    const shuffledPairs = shuffleArray(pokemonPairs);
+
+    // Assign Pokémon to cards
+    for (let i = 0; i < CARD_COUNT; i++) {
+      assignPokemonToCard(cards[i], shuffledPairs[i]);
+    }
+
+    // Hide loading indicator and show cards
+    hideLoading();
+    cardGrid.classList.remove('hidden');
+
+  } catch (error) {
+    // Log the error for debugging
+    console.error('Error fetching and assigning Pokémon:', error);
+
+    // Hide loading indicator
+    hideLoading();
+
+    // Show user-friendly error message
+    showErrorMessage('Failed to load Pokémon data. Please try again.');
+
+    // Add retry button
+    addRetryButton(() => fetchAndAssignPokemon());
+  }
+}</code></pre>
+    </div>
+
+    <h3>Error Handling Best Practices</h3>
+    <ul>
+      <li>Always wrap potentially problematic code in try/catch blocks</li>
+      <li>Include error handling for both synchronous and asynchronous code</li>
+      <li>Log detailed error information for debugging</li>
+      <li>Display user-friendly messages that don't expose technical details</li>
+      <li>Provide recovery options when possible</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>Creating User-Friendly Error Messages</h2>
+
+    <p>Technical error messages are confusing to users. Instead, create helpful, action-oriented messages:</p>
+
+    <div class="code-sample">
+      <h4>Implementing a User-Friendly Error Message</h4>
+      <pre><code>function showErrorMessage(message, isRetryable = true) {
+  // Create error message container
+  const errorContainer = document.createElement('div');
+  errorContainer.className = 'error-message';
+
+  // Add error icon
+  const errorIcon = document.createElement('div');
+  errorIcon.className = 'error-icon';
+  errorIcon.textContent = '⚠️';
+
+  // Add error content
+  const errorContent = document.createElement('div');
+  errorContent.className = 'error-content';
+
+  // Add error heading
+  const errorHeading = document.createElement('h4');
+  errorHeading.textContent = 'Oops! Something went wrong';
+
+  // Add error message
+  const errorText = document.createElement('p');
+  errorText.textContent = message;
+
+  // Assemble the error message
+  errorContent.appendChild(errorHeading);
+  errorContent.appendChild(errorText);
+
+  // Add retry button if the error is retryable
+  if (isRetryable) {
+    const retryButton = document.createElement('button');
+    retryButton.className = 'retry-btn';
+    retryButton.textContent = 'Try Again';
+    retryButton.addEventListener('click', () => {
+      errorContainer.remove();
+      fetchAndAssignPokemon(); // Retry the operation
+    });
+
+    errorContent.appendChild(retryButton);
+  }
+
+  // Assemble the error container
+  errorContainer.appendChild(errorIcon);
+  errorContainer.appendChild(errorContent);
+
+  // Add to the page
+  document.querySelector('.container').appendChild(errorContainer);
+}</code></pre>
+    </div>
+
+    <h3>Principles for Effective Error Messages</h3>
+    <ol>
+      <li><strong>Be clear and specific</strong> about what went wrong</li>
+      <li><strong>Use friendly, non-technical language</strong> that players can understand</li>
+      <li><strong>Offer solutions or next steps</strong> whenever possible</li>
+      <li><strong>Use appropriate visual cues</strong> like icons to signal the type of message</li>
+      <li><strong>Keep messages concise</strong> - avoid walls of text</li>
+    </ol>
+
+    <div class="example-comparison">
+      <div class="example-box">
+        <h4>Poor Error Message</h4>
+        <p class="error">Error: HTTP 429 - Too Many Requests</p>
+        <p>This exposes technical details that confuse players and offers no solution.</p>
+      </div>
+      <div class="example-box">
+        <h4>Better Error Message</h4>
+        <p class="warning">We're having trouble reaching the Pokémon database. Please wait a moment before trying again.
+        </p>
+        <p>This explains the issue in user-friendly terms and suggests a solution.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Loading States and Feedback</h2>
+
+    <p>A key part of graceful failure handling is providing appropriate visual feedback during loading and processing:
+    </p>
+
+    <div class="loading-spinner">
+      <div class="spinner"></div>
+      <div style="margin-left: 15px;">Catching Pokémon...</div>
+    </div>
+
+    <p>Always show loading indicators when your game is fetching data or performing operations that might take time.
+      This prevents players from thinking the game has frozen or failed.</p>
+
+    <div class="code-sample">
+      <h4>Implementing Loading State</h4>
+      <pre><code>function showLoading() {
+  const loadingSpinner = document.getElementById('loading-spinner');
+  loadingSpinner.classList.remove('hidden');
+}
+
+function hideLoading() {
+  const loadingSpinner = document.getElementById('loading-spinner');
+  loadingSpinner.classList.add('hidden');
+}
+
+// Usage in fetchAndAssignPokemon
+async function fetchAndAssignPokemon() {
+  // Show loading state
+  showLoading();
+
+  try {
+    // Fetch data, might take time...
+    const pokemonList = await PokemonService.fetchMultipleRandomPokemon(6);
+
+    // Process data...
+
+    // Success! Hide loading state
+    hideLoading();
+
+  } catch (error) {
+    // Error occurred, hide loading state and show error
+    hideLoading();
+    showErrorMessage('Failed to load Pokémon data');
+  }
+}</code></pre>
+    </div>
+
+    <div class="warning">
+      <h3>Always Handle Both Success and Failure Paths</h3>
+      <p>Make sure to hide loading indicators in both success and error cases. Leaving a loading spinner visible after
+        an error occurs can confuse players about the current state of the game.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Defensive Programming with Guard Clauses</h2>
+
+    <p>Defensive programming helps prevent errors before they occur by validating inputs and checking for edge cases.
+    </p>
+
+    <p>Guard clauses are conditions at the beginning of a function that return early if certain conditions aren't met:
+    </p>
+
+    <div class="code-sample">
+      <h4>Using Guard Clauses</h4>
+      <pre><code>// Without guard clauses
+function assignPokemonToCard(card, pokemon) {
+  const cardBack = card.querySelector('.card-back');
+  cardBack.innerHTML = '';
+
+  const pokemonImg = document.createElement('img');
+  pokemonImg.src = pokemon.sprite;
+  pokemonImg.alt = pokemon.name;
+  pokemonImg.className = 'pokemon-img';
+
+  cardBack.appendChild(pokemonImg);
+
+  // Store Pokémon data on the card
+  card.dataset.pokemon = JSON.stringify(pokemon);
+}
+
+// With guard clauses
+function assignPokemonToCard(card, pokemon) {
+  // Guard clauses
+  if (!card) {
+    console.error('Cannot assign Pokémon: card is null or undefined');
+    return;
+  }
+
+  if (!pokemon) {
+    console.error('Cannot assign Pokémon: pokemon data is null or undefined');
+    return;
+  }
+
+  const cardBack = card.querySelector('.card-back');
+  if (!cardBack) {
+    console.error('Cannot assign Pokémon: card-back element not found');
+    return;
+  }
+
+  // Rest of the function...
+  cardBack.innerHTML = '';
+
+  const pokemonImg = document.createElement('img');
+  pokemonImg.src = pokemon.sprite || 'assets/placeholder.png'; // Fallback for missing sprite
+  pokemonImg.alt = pokemon.name || 'Unknown Pokémon'; // Fallback for missing name
+  pokemonImg.className = 'pokemon-img';
+
+  cardBack.appendChild(pokemonImg);
+
+  // Store Pokémon data on the card
+  try {
+    card.dataset.pokemon = JSON.stringify(pokemon);
+  } catch (error) {
+    console.error('Error storing Pokémon data:', error);
+    // Continue anyway, the card will still display
+  }
+}</code></pre>
+    </div>
+
+    <h3>Key Principles of Defensive Programming</h3>
+    <ul>
+      <li><strong>Validate all inputs</strong> at the beginning of functions</li>
+      <li><strong>Provide default values</strong> or fallbacks when data is missing</li>
+      <li><strong>Check for null or undefined</strong> before accessing properties</li>
+      <li><strong>Handle edge cases</strong> explicitly</li>
+      <li><strong>Use try/catch blocks</strong> for operations that might fail</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>Handling API Rate Limits</h2>
+
+    <p>The PokéAPI has rate limits that can cause failures if too many requests are made in a short time:</p>
+
+    <div class="code-sample">
+      <h4>Implementing Retry Logic for Rate Limits</h4>
+      <pre><code>async function fetchRandomPokemon(attempts = 0) {
+  const MAX_ATTEMPTS = 3;
+  const RETRY_DELAY = 1000; // 1 second
+
+  try {
+    // Generate a random ID between 1 and TOTAL_POKEMON
+    const randomId = Math.floor(Math.random() * TOTAL_POKEMON) + 1;
+
+    // Fetch the Pokémon data
+    const response = await fetch(`${API_BASE_URL}/pokemon/${randomId}`);
+
+    // Handle rate limiting
+    if (response.status === 429) { // Too Many Requests
+      if (attempts < MAX_ATTEMPTS) {
+        console.warn(`Rate limited, attempt ${attempts + 1}/${MAX_ATTEMPTS}. Retrying after delay...`);
+
+        // Wait before retrying
+        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
+
+        // Retry with incremented attempt counter
+        return fetchRandomPokemon(attempts + 1);
+      } else {
+        throw new Error('Rate limit exceeded. Maximum retry attempts reached.');
+      }
+    }
+
+    // Handle other non-200 responses
+    if (!response.ok) {
+      throw new Error(`Failed to fetch Pokémon: ${response.status} ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return processPokemonData(data);
+
+  } catch (error) {
+    console.error('Error fetching random Pokémon:', error);
+
+    // For network errors, retry if we haven't exceeded max attempts
+    if (error.name === 'TypeError' && attempts < MAX_ATTEMPTS) {
+      console.warn(`Network error, attempt ${attempts + 1}/${MAX_ATTEMPTS}. Retrying after delay...`);
+
+      // Wait before retrying
+      await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
+
+      // Retry with incremented attempt counter
+      return fetchRandomPokemon(attempts + 1);
+    }
+
+    // Re-throw the error to be handled by the caller
+    throw error;
+  }
+}</code></pre>
+    </div>
+
+    <p>This implementation includes:</p>
+    <ul>
+      <li>Detection of rate limit errors (HTTP 429)</li>
+      <li>Automatic retries with increasing delays</li>
+      <li>Maximum retry attempts to prevent infinite loops</li>
+      <li>Fallback for network errors</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>Implementing Image Error Handling</h2>
+
+    <p>Pokémon sprites might fail to load. We should handle this gracefully:</p>
+
+    <div class="code-sample">
+      <h4>Handling Image Loading Errors</h4>
+      <pre><code>function createPokemonImage(pokemon) {
+  const pokemonImg = document.createElement('img');
+
+  // Set a placeholder initially
+  pokemonImg.src = 'assets/placeholder.png';
+  pokemonImg.alt = pokemon.name || 'Unknown Pokémon';
+  pokemonImg.className = 'pokemon-img';
+
+  // Add error handling
+  pokemonImg.onerror = function() {
+    // If the sprite fails to load, keep the placeholder
+    console.warn(`Failed to load sprite for ${pokemon.name}`);
+
+    // Add a label so players know which Pokémon it is
+    const label = document.createElement('div');
+    label.className = 'pokemon-label';
+    label.textContent = pokemon.name;
+
+    // Add the label to the parent element
+    this.parentNode.appendChild(label);
+  };
+
+  // Try to load the actual sprite
+  if (pokemon.sprite) {
+    pokemonImg.src = pokemon.sprite;
+  }
+
+  return pokemonImg;
+}</code></pre>
+    </div>
+
+    <p>This approach ensures that even if sprite images fail to load, the game remains playable by:</p>
+    <ul>
+      <li>Starting with a placeholder image</li>
+      <li>Attempting to load the actual sprite</li>
+      <li>Falling back to the placeholder if loading fails</li>
+      <li>Adding a text label so players can still identify the Pokémon</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>Preventing and Handling JSON Parsing Errors</h2>
+
+    <p>JSON parsing can fail if the data isn't properly formatted:</p>
+
+    <div class="code-sample">
+      <h4>Safe JSON Parsing</h4>
+      <pre><code>// Unsafe JSON parsing
+function checkForMatch() {
+  const firstPokemonData = JSON.parse(firstCard.dataset.pokemon);
+  const secondPokemonData = JSON.parse(secondCard.dataset.pokemon);
+
+  if (firstPokemonData.id === secondPokemonData.id) {
+    // Handle match
+  }
+}
+
+// Safe JSON parsing
+function checkForMatch() {
+  let firstPokemonData, secondPokemonData;
+
+  try {
+    firstPokemonData = JSON.parse(firstCard.dataset.pokemon);
+  } catch (error) {
+    console.error('Error parsing first card data:', error);
+    // Use default or fallback data
+    firstPokemonData = { id: 'unknown' };
+  }
+
+  try {
+    secondPokemonData = JSON.parse(secondCard.dataset.pokemon);
+  } catch (error) {
+    console.error('Error parsing second card data:', error);
+    // Use default or fallback data
+    secondPokemonData = { id: 'unknown' };
+  }
+
+  // Only proceed if we have valid IDs to compare
+  if (firstPokemonData.id && secondPokemonData.id) {
+    if (firstPokemonData.id === secondPokemonData.id) {
+      // Handle match
+    } else {
+      // Handle non-match
+    }
+  } else {
+    // Handle error case
+    console.error('Invalid Pokémon data, cannot check for match');
+    resetSelection(); // Reset the turn
+  }
+}</code></pre>
+    </div>
+
+    <p>This approach:</p>
+    <ul>
+      <li>Wraps JSON parsing in try/catch blocks</li>
+      <li>Provides fallback data if parsing fails</li>
+      <li>Validates the parsed data before using it</li>
+      <li>Handles the error case gracefully by resetting the turn</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>Recovering from Game State Errors</h2>
+
+    <p>Sometimes the game can enter an invalid state. Provide ways to recover:</p>
+
+    <div class="code-sample">
+      <h4>Adding a Game Reset Button</h4>
+      <pre><code>function addResetButton() {
+  const resetButton = document.createElement('button');
+  resetButton.textContent = 'Reset Game';
+  resetButton.className = 'btn-reset';
+  resetButton.addEventListener('click', resetGame);
+
+  document.querySelector('.header').appendChild(resetButton);
+}
+
+function resetGame() {
+  // Reset game state variables
+  firstCard = null;
+  secondCard = null;
+  isProcessingPair = false;
+  matchedPairsCount = 0;
+
+  // Clear card grid
+  cardGrid.innerHTML = '';
+
+  // Remove any error messages
+  const errorMessages = document.querySelectorAll('.error-message');
+  errorMessages.forEach(message => message.remove());
+
+  // Create new cards and start fresh
+  createCardElements();
+  fetchAndAssignPokemon();
+}
+
+// Call this function if an unrecoverable error occurs
+function handleGameStateError(error) {
+  console.error('Game state error:', error);
+
+  // Show an error message with reset button
+  const message = 'Something went wrong with the game. Please try resetting.';
+  showErrorMessage(message, false); // Not automatically retryable
+
+  // Add a reset button to the error message
+  const errorElement = document.querySelector('.error-message:last-child');
+  const resetButton = document.createElement('button');
+  resetButton.textContent = 'Reset Game';
+  resetButton.className = 'retry-btn';
+  resetButton.addEventListener('click', () => {
+    errorElement.remove();
+    resetGame();
+  });
+
+  errorElement.querySelector('.error-content').appendChild(resetButton);
+}</code></pre>
+    </div>
+
+    <p>This implementation:</p>
+    <ul>
+      <li>Provides a reset button for players to use if the game gets stuck</li>
+      <li>Includes a specific handler for game state errors</li>
+      <li>Cleans up error messages when resetting</li>
+      <li>Restarts the game cleanly by reinitializing all components</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>Putting It All Together: Comprehensive Error Handling</h2>
+
+    <p>Here's an overview of error handling touchpoints in your memory game:</p>
+
+    <ol>
+      <li><strong>API Data Fetching:</strong> Use try/catch blocks and implement retry logic</li>
+      <li><strong>Image Loading:</strong> Provide fallback images and error handlers for sprites</li>
+      <li><strong>JSON Parsing:</strong> Safely parse data with try/catch and validate before use</li>
+      <li><strong>DOM Operations:</strong> Check element existence before manipulation</li>
+      <li><strong>Game Logic:</strong> Implement state validation and recovery options</li>
+      <li><strong>Loading States:</strong> Show clear feedback during asynchronous operations</li>
+    </ol>
+
+    <p>By addressing all these potential failure points, your game will be resilient and provide a smooth experience
+      even when things go wrong.</p>
+  </div>
+
+  <div class="card">
+    <h2>Practical Exercise: Adding Error Handling</h2>
+
+    <p>Try implementing error handling in your memory game by following these steps:</p>
+
+    <ol>
+      <li>Add error handling to your <code>fetchAndAssignPokemon</code> function using try/catch</li>
+      <li>Create a function to display user-friendly error messages</li>
+      <li>Implement loading indicators for asynchronous operations</li>
+      <li>Add image error handling for Pokémon sprites</li>
+      <li>Safely parse JSON data with error handling</li>
+      <li>Add a reset button for recovery from errors</li>
+    </ol>
+
+    <div class="warning">
+      <h3>Test Your Error Handling</h3>
+      <p>Once implemented, test your error handling by deliberately introducing failures:</p>
+      <ul>
+        <li>Disconnect from the internet to simulate network errors</li>
+        <li>Modify API URLs to be incorrect</li>
+        <li>Try to use invalid JSON in your dataset</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Key Takeaways</h2>
+
+    <ul>
+      <li><strong>Anticipate failures:</strong> Identify potential failure points and plan for them</li>
+      <li><strong>Use try/catch:</strong> Wrap risky operations in try/catch blocks</li>
+      <li><strong>Provide feedback:</strong> Keep players informed with loading indicators and clear messages</li>
+      <li><strong>Offer recovery:</strong> Give players ways to recover from errors</li>
+      <li><strong>Be defensive:</strong> Validate inputs and check for edge cases</li>
+      <li><strong>Degrade gracefully:</strong> When components fail, let the rest of the game continue if possible</li>
+    </ul>
+
+    <p>Remember that error handling isn't just about preventing crashes—it's about creating a positive user experience
+      even when things don't go perfectly. A game that handles errors gracefully will be more enjoyable and less
+      frustrating for players.</p>
+  </div>
+
+  <div class="footer">
+    <p>Pokémon and Pokémon character names are trademarks of Nintendo. This educational project is not affiliated with
+      or endorsed by Nintendo, The Pokémon Company, or Game Freak.</p>
+    <p>PokeAPI data sourced from <a href="https://pokeapi.co/">pokeapi.co</a></p>
+  </div>
+</body>
+
+</html>

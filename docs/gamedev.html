@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game State Management - Pokémon Memory Game</title>
+  <link rel="shortcut icon" href="./microscope.png" type="image/png">
+  <link rel="stylesheet" href="header.css">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Additional styles for this tutorial */
+    pre {
+      background-color: #f5f5f5;
+      padding: 15px;
+      border-radius: 5px;
+      overflow-x: auto;
+      margin: 20px 0;
+      border-left: 4px solid #0056b3;
+    }
+
+    code {
+      font-family: 'Courier New', Courier, monospace;
+    }
+
+    .code-sample {
+      background-color: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 25px 0;
+      border: 1px solid #ddd;
+    }
+
+    .output {
+      background-color: #f0f8ff;
+      padding: 10px 15px;
+      border-radius: 5px;
+      margin-top: 10px;
+      border-left: 4px solid #28a745;
+    }
+
+    .warning {
+      background-color: #fff3cd;
+      padding: 15px;
+      border-radius: 5px;
+      margin: 20px 0;
+      border-left: 4px solid #ffc107;
+    }
+
+    .example-comparison {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin: 30px 0;
+    }
+
+    .example-box {
+      flex: 1;
+      min-width: 300px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 15px;
+    }
+
+    .example-box h4 {
+      margin-top: 0;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 10px;
+    }
+
+    .diagram {
+      width: 100%;
+      max-width: 600px;
+      margin: 20px auto;
+      display: block;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+
+    .highlight {
+      background-color: #ffffcc;
+      padding: 2px 4px;
+    }
+
+    .state-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+
+    .state-table th,
+    .state-table td {
+      border: 1px solid #ddd;
+      padding: 8px 12px;
+    }
+
+    .state-table th {
+      background-color: #f2f2f2;
+      text-align: left;
+    }
+
+    .state-table tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="container">
+      <nav class="site-nav">
+        <div class="logo">
+          <a href="index.html">
+            <img src="./microscope.png" alt="microscope drawing" class="logo-img">
+            <span>Pokémon Memory Game</span>
+          </a>
+        </div>
+        <ul class="nav-links">
+          <li><a href="index.html" class="nav-link">Home</a></li>
+          <li><a href="assignment.html" class="nav-link">Assignment</a></li>
+
+          <li><a href="git.html" class="nav-link">Git Branch</a></li>
+          <li><a href="errors.html" class="nav-link">Handle Errors</a></li>
+          <li><a href="gamedev.html" class="nav-link">Game Dev</a></li>
+          <li><a href="debugging.html" class="nav-link">JS Debugging</a></li>
+          <li><a href="esm-vite.html" class="nav-link">ES Modules & Vite</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <div class="header">
+    <h1>Game State Management for Memory Games</h1>
+    <p>Learn how to track and manage state in your Pokémon Memory Game using practical techniques suitable for
+      JavaScript beginners.</p>
+  </div>
+
+  <div class="card">
+    <h2>What is Game State?</h2>
+
+    <p>Game state refers to all the information that describes the current condition of your game at any given moment.
+      For our memory game, this includes:</p>
+
+    <ul>
+      <li>Which cards are currently face up</li>
+      <li>Which cards have been matched</li>
+      <li>Which card was selected first in the current turn</li>
+      <li>Whether the game is waiting for animations to complete</li>
+      <li>How many pairs have been matched so far</li>
+    </ul>
+
+    <p>Properly managing this state is crucial for creating a game that responds correctly to player actions and
+      maintains consistent behavior.</p>
+
+    <h3>Why State Management Matters</h3>
+
+    <p>As your game grows in complexity, keeping track of all these different states becomes challenging. Poor state
+      management can lead to:</p>
+
+    <ul>
+      <li>Bugs where cards behave unpredictably</li>
+      <li>Players being able to click cards when they shouldn't</li>
+      <li>Difficulty adding new features or game mechanics</li>
+      <li>Code that's hard to understand and maintain</li>
+    </ul>
+
+    <p>By implementing a structured approach to state management, you'll create a more robust game that's easier to
+      extend and debug.</p>
+  </div>
+
+  <div class="card">
+    <h2>Simple State Tracking for Memory Games</h2>
+
+    <p>Let's start with the simplest approach to tracking state in our memory game. For beginners, using simple
+      variables to track state is a good place to start.</p>
+
+    <div class="code-sample">
+      <h4>Basic State Variables</h4>
+      <pre><code>// Track which cards are currently selected
+let firstSelectedCard = null;
+let secondSelectedCard = null;
+
+// Track whether we're processing a pair (to prevent clicking more cards)
+let isProcessingPair = false;
+
+// Track game progress
+let matchedPairsCount = 0;
+const totalPairs = 6;</code></pre>
+    </div>
+
+    <p>These simple variables allow us to keep track of the essential state needed for a basic memory game. Let's
+      examine how we'd use them:</p>
+
+    <div class="code-sample">
+      <h4>Using State in Card Click Handler</h4>
+      <pre><code>function handleCardClick(event) {
+  // Find the clicked card
+  const card = event.target.closest('.card');
+
+  // Return early if:
+  // - Not a card
+  // - Card is already flipped or matched
+  // - We're currently processing a pair
+  if (!card ||
+      card.classList.contains('flipped') ||
+      card.classList.contains('matched') ||
+      isProcessingPair) {
+    return;
+  }
+
+  // Flip the card
+  card.classList.add('flipped');
+
+  // First card selection
+  if (firstSelectedCard === null) {
+    firstSelectedCard = card;
+    return;
+  }
+
+  // Second card selection
+  secondSelectedCard = card;
+
+  // Lock interaction during processing
+  isProcessingPair = true;
+
+  // Check for a match
+  checkForMatch();
+}</code></pre>
+    </div>
+
+    <p>This simple approach works for a basic memory game, but as your game grows more complex, you might run into
+      limitations.</p>
+  </div>
+
+  <div class="card">
+    <h2>State Transition Flow in Memory Games</h2>
+
+    <p>A memory game follows a specific flow of states. Understanding this flow helps us organize our code better:</p>
+
+    <img src="./state-diagram.png" alt="Memory Game State Flow Diagram" class="diagram">
+
+    <p>In our memory game, we need to track several card states:</p>
+
+    <table class="state-table">
+      <tr>
+        <th>State</th>
+        <th>Description</th>
+        <th>Visual Indicator</th>
+      </tr>
+      <tr>
+        <td>Unflipped</td>
+        <td>Initial state, card is face down</td>
+        <td>Pokéball image showing</td>
+      </tr>
+      <tr>
+        <td>Flipped</td>
+        <td>Card is face up but not yet matched</td>
+        <td>Pokémon showing, card has 'flipped' class</td>
+      </tr>
+      <tr>
+        <td>Matched</td>
+        <td>Card has been matched with its pair</td>
+        <td>Pokémon showing, card has 'matched' class</td>
+      </tr>
+    </table>
+
+    <p>We also need to track the overall game state:</p>
+
+    <table class="state-table">
+      <tr>
+        <th>Game State</th>
+        <th>Description</th>
+      </tr>
+      <tr>
+        <td>Awaiting First Selection</td>
+        <td>No cards selected yet</td>
+      </tr>
+      <tr>
+        <td>Awaiting Second Selection</td>
+        <td>First card selected, waiting for second</td>
+      </tr>
+      <tr>
+        <td>Processing Pair</td>
+        <td>Two cards selected, checking match</td>
+      </tr>
+      <tr>
+        <td>Game Complete</td>
+        <td>All pairs have been matched</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Using State to Control Game Flow</h2>
+
+    <p>Now let's see how to use our state variables to control the game flow:</p>
+
+    <div class="code-sample">
+      <h4>Checking for Matches</h4>
+      <pre><code>function checkForMatch() {
+  // Get Pokémon data from both cards
+  const firstPokemonData = JSON.parse(firstSelectedCard.dataset.pokemon);
+  const secondPokemonData = JSON.parse(secondSelectedCard.dataset.pokemon);
+
+  // Compare Pokémon IDs to determine if it's a match
+  if (firstPokemonData.id === secondPokemonData.id) {
+    // Handle match
+    handleMatch();
+  } else {
+    // Handle non-match
+    handleNonMatch();
+  }
+}
+
+function handleMatch() {
+  // Mark cards as matched
+  firstSelectedCard.classList.add('matched');
+  secondSelectedCard.classList.add('matched');
+
+  // Increment match counter
+  matchedPairsCount++;
+
+  // Check if game is complete
+  if (matchedPairsCount === totalPairs) {
+    setTimeout(showGameComplete, 500);
+  }
+
+  // Reset selection for next turn
+  resetSelection();
+}
+
+function handleNonMatch() {
+  // Flip cards back after a delay
+  setTimeout(() => {
+    firstSelectedCard.classList.remove('flipped');
+    secondSelectedCard.classList.remove('flipped');
+
+    // Reset selection for next turn
+    resetSelection();
+  }, 1000);
+}
+
+function resetSelection() {
+  // Reset selection variables
+  firstSelectedCard = null;
+  secondSelectedCard = null;
+  isProcessingPair = false;
+}</code></pre>
+    </div>
+
+    <p>This approach to state management is straightforward and works well for simple games. The key concepts here are:
+    </p>
+
+    <ol>
+      <li><strong>State Variables:</strong> Using variables to track the current state</li>
+      <li><strong>State Guards:</strong> Checking state before allowing actions</li>
+      <li><strong>State Transitions:</strong> Clearly defined functions that change state</li>
+      <li><strong>State Reset:</strong> Cleaning up state for the next turn</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h2>Common State Management Pitfalls</h2>
+
+    <div class="warning">
+      <h3>Beware of Race Conditions</h3>
+      <p>A common mistake in memory games is allowing players to click more cards while animations are still running.
+        Always lock interaction during animations.</p>
+    </div>
+
+    <h3>Other Common Pitfalls</h3>
+    <ul>
+      <li><strong>Forgetting to reset state:</strong> Always reset state variables at the appropriate time</li>
+      <li><strong>Inconsistent state:</strong> Ensure your visual state (CSS classes) matches your JavaScript state
+        variables</li>
+      <li><strong>Missing state guards:</strong> Always check the current state before allowing actions</li>
+      <li><strong>Relying too much on DOM:</strong> Don't use the DOM as your only source of truth for state</li>
+    </ul>
+
+    <div class="code-sample">
+      <h4>Example: Protecting Against Race Conditions</h4>
+      <pre><code>// At the beginning of handleCardClick
+if (isProcessingPair) {
+  return; // Exit early if we're processing a pair
+}
+
+// Before starting any animation
+isProcessingPair = true;
+
+// After animation completes
+isProcessingPair = false;</code></pre>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Improving Our State Management</h2>
+
+    <p>As your game grows, you might want a more structured approach to state management. Here's an improved version
+      using an object to group related state:</p>
+
+    <div class="code-sample">
+      <h4>Object-Based State Management</h4>
+      <pre><code>// Game state object
+const gameState = {
+  // Card selection
+  firstCard: null,
+  secondCard: null,
+
+  // Game flow control
+  isProcessingPair: false,
+
+  // Game progress
+  matchedPairs: 0,
+  totalPairs: 6,
+
+  // Reset selection for next turn
+  resetSelection: function() {
+    this.firstCard = null;
+    this.secondCard = null;
+    this.isProcessingPair = false;
+  },
+
+  // Check if game is complete
+  isGameComplete: function() {
+    return this.matchedPairs === this.totalPairs;
+  }
+};
+
+// Usage in handleCardClick
+function handleCardClick(event) {
+  // ...existing code...
+
+  // First card selection
+  if (gameState.firstCard === null) {
+    gameState.firstCard = card;
+    return;
+  }
+
+  // Second card selection
+  gameState.secondCard = card;
+
+  // Lock interaction
+  gameState.isProcessingPair = true;
+
+  // Check for match
+  checkForMatch();
+}</code></pre>
+    </div>
+
+    <p>This approach offers several advantages:</p>
+    <ul>
+      <li>All game state is grouped in one place</li>
+      <li>Related functions are attached to the state object</li>
+      <li>Easier to debug since you can inspect the entire state at once</li>
+      <li>More maintainable as your game grows</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>Practical Exercise: Implementing Basic State Management</h2>
+
+    <p>Now it's your turn to implement basic state management in the Pokémon memory game. Follow these steps:</p>
+
+    <ol>
+      <li>Create state variables for tracking selected cards and game progress</li>
+      <li>Implement a card click handler that:
+        <ul>
+          <li>Checks if the clicked card can be flipped</li>
+          <li>Updates the state when cards are selected</li>
+          <li>Compares cards when two are selected</li>
+        </ul>
+      </li>
+      <li>Implement functions to handle matches and non-matches</li>
+      <li>Add logic to detect when the game is complete</li>
+    </ol>
+
+    <div class="warning">
+      <p><strong>Tip:</strong> Start simple! Get the basic state tracking working before adding animations or advanced
+        features.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Next Steps: Advanced State Management</h2>
+
+    <p>Once you're comfortable with basic state management, you can explore more advanced approaches:</p>
+
+    <ul>
+      <li><strong>Finite State Machines (FSM):</strong> A more formal way to model state transitions</li>
+      <li><strong>Event-Based State Management:</strong> Using events to communicate state changes</li>
+      <li><strong>State Pattern:</strong> Using classes to represent different states</li>
+    </ul>
+
+    <p>These advanced topics will be covered in future tutorials as we continue to improve our memory game.</p>
+  </div>
+
+  <div class="footer">
+    <p>Pokémon and Pokémon character names are trademarks of Nintendo. This educational project is not affiliated with
+      or endorsed by Nintendo, The Pokémon Company, or Game Freak.</p>
+    <p>PokeAPI data sourced from <a href="https://pokeapi.co/">pokeapi.co</a></p>
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Debugging JavaScript Code in the Browser - Pokémon Memory Game</title>
+  <link rel="shortcut icon" href="./microscope.png" type="image/png">
+  <link rel="stylesheet" href="header.css">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Additional styles for this tutorial */
+    pre {
+      background-color: #f5f5f5;
+      padding: 15px;
+      border-radius: 5px;
+      overflow-x: auto;
+      margin: 20px 0;
+      border-left: 4px solid #0056b3;
+    }
+
+    code {
+      font-family: 'Courier New', Courier, monospace;
+    }
+
+    .code-sample {
+      background-color: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 25px 0;
+      border: 1px solid #ddd;
+    }
+
+    .output {
+      background-color: #f0f8ff;
+      padding: 10px 15px;
+      border-radius: 5px;
+      margin-top: 10px;
+      border-left: 4px solid #28a745;
+    }
+
+    .warning {
+      background-color: #fff3cd;
+      padding: 15px;
+      border-radius: 5px;
+      margin: 20px 0;
+      border-left: 4px solid #ffc107;
+    }
+
+    .tip {
+      background-color: #d1ecf1;
+      padding: 15px;
+      border-radius: 5px;
+      margin: 20px 0;
+      border-left: 4px solid #17a2b8;
+    }
+
+    .success {
+      background-color: #d4edda;
+      padding: 15px;
+      border-radius: 5px;
+      margin: 20px 0;
+      border-left: 4px solid #28a745;
+    }
+
+    .example-comparison {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin: 30px 0;
+    }
+
+    .example-box {
+      flex: 1;
+      min-width: 300px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 15px;
+    }
+
+    .example-box h4 {
+      margin-top: 0;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 10px;
+    }
+
+    .highlight {
+      background-color: #ffffcc;
+      padding: 2px 4px;
+    }
+
+    .screenshot {
+      max-width: 100%;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      margin: 20px 0;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .step-container {
+      margin-bottom: 30px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .step-header {
+      background-color: #f8f9fa;
+      padding: 15px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .step-header h3 {
+      margin: 0;
+      color: #0056b3;
+    }
+
+    .step-content {
+      padding: 15px;
+    }
+
+    figure {
+      margin: 20px 0;
+      text-align: center;
+    }
+
+    figcaption {
+      font-style: italic;
+      color: #666;
+      padding: 5px 0;
+    }
+
+    /* Navigation Menu Styles */
+    .nav-menu {
+      background-color: #f8f9fa;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      margin: 20px 0;
+      padding: 15px;
+    }
+
+    .nav-menu h3 {
+      margin-top: 0;
+      margin-bottom: 15px;
+      color: #0056b3;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 10px;
+    }
+
+    .nav-menu ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 10px;
+    }
+
+    .nav-menu li {
+      margin-bottom: 8px;
+    }
+
+    .nav-menu a {
+      text-decoration: none;
+      color: #0056b3;
+      display: block;
+      padding: 8px 12px;
+      border-radius: 4px;
+      transition: background-color 0.2s;
+    }
+
+    .nav-menu a:hover {
+      background-color: #e9ecef;
+    }
+
+    /* Back to top button */
+    .back-to-top {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #0056b3;
+      color: white;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      text-align: center;
+      line-height: 50px;
+      font-size: 20px;
+      text-decoration: none;
+      opacity: 0.8;
+      transition: opacity 0.2s;
+    }
+
+    .back-to-top:hover {
+      opacity: 1;
+    }
+
+    /* Section styling */
+    section {
+      scroll-margin-top: 20px;
+    }
+
+    /* Console message styles */
+    .console-log {
+      font-family: 'Courier New', Courier, monospace;
+      background-color: #282c34;
+      color: #abb2bf;
+      padding: 12px 15px;
+      border-radius: 5px;
+      margin: 10px 0;
+      overflow-x: auto;
+    }
+
+    .console-log .info {
+      color: #61afef;
+    }
+
+    .console-log .error {
+      color: #e06c75;
+    }
+
+    .console-log .warning {
+      color: #e5c07b;
+    }
+
+    .console-log .success {
+      color: #98c379;
+    }
+
+    /* DevTools panel tabs */
+    .devtools-tabs {
+      display: flex;
+      background-color: #f1f3f5;
+      border: 1px solid #ddd;
+      border-bottom: none;
+      border-top-left-radius: 5px;
+      border-top-right-radius: 5px;
+    }
+
+    .devtools-tab {
+      padding: 8px 15px;
+      cursor: pointer;
+      border-right: 1px solid #ddd;
+    }
+
+    .devtools-tab.active {
+      background-color: #fff;
+      border-bottom: 2px solid #0056b3;
+    }
+
+    .devtools-panel {
+      border: 1px solid #ddd;
+      border-bottom-left-radius: 5px;
+      border-bottom-right-radius: 5px;
+      padding: 15px;
+      background-color: #fff;
+    }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="container">
+      <nav class="site-nav">
+        <div class="logo">
+          <a href="index.html">
+            <img src="./microscope.png" alt="microscope drawing" class="logo-img">
+            <span>Pokémon Memory Game</span>
+          </a>
+        </div>
+        <ul class="nav-links">
+          <li><a href="index.html" class="nav-link">Home</a></li>
+          <li><a href="assignment.html" class="nav-link">Assignment</a></li>
+
+          <li><a href="git.html" class="nav-link">Git Branch</a></li>
+          <li><a href="errors.html" class="nav-link">Handle Errors</a></li>
+          <li><a href="gamedev.html" class="nav-link">Game Dev</a></li>
+          <li><a href="debugging.html" class="nav-link">JS Debugging</a></li>
+          <li><a href="esm-vite.html" class="nav-link">ES Modules & Vite</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <div class="header">
+    <h1>Debugging JavaScript Code in the Browser</h1>
+    <p>Learn essential debugging techniques to identify and fix issues in your Pokémon Memory Game.</p>
+  </div>
+
+  <!-- Navigation Menu -->
+  <div class="nav-menu">
+    <h3>Jump to Section</h3>
+    <ul>
+      <li><a href="#why-debug">Why Debugging Skills Matter</a></li>
+      <li><a href="#browser-console">Using the Browser Console</a></li>
+      <li><a href="#console-methods">Console Methods</a></li>
+      <li><a href="#breakpoints">Working with Breakpoints</a></li>
+      <li><a href="#debugging-async">Debugging Asynchronous Code</a></li>
+      <li><a href="#common-issues">Common Memory Game Issues</a></li>
+      <li><a href="#debugging-events">Debugging Event Listeners</a></li>
+      <li><a href="#performance">Performance Debugging</a></li>
+      <li><a href="#debugging-workflow">Effective Debugging Workflow</a></li>
+      <li><a href="#exercises">Practical Exercises</a></li>
+      <li><a href="#takeaways">Key Takeaways</a></li>
+    </ul>
+  </div>
+
+  <section id="why-debug" class="card">
+    <h2>Why Debugging Skills Matter</h2>
+
+    <p>Learning to debug effectively is one of the most valuable skills you can develop as a programmer. For your
+      Pokémon Memory Game project, strong debugging skills will help you:</p>
+
+    <ul>
+      <li><strong>Find and fix bugs faster:</strong> Identify the source of issues without guesswork</li>
+      <li><strong>Understand code flow:</strong> See exactly how your game logic executes, especially for complex
+        features like card matching</li>
+      <li><strong>Detect hidden issues:</strong> Find problems that aren't immediately visible but could affect gameplay
+      </li>
+      <li><strong>Learn from your mistakes:</strong> Understand why bugs occur so you can prevent similar issues in the
+        future</li>
+      <li><strong>Create more reliable code:</strong> Build a game that handles edge cases and unexpected situations
+      </li>
+    </ul>
+
+    <div class="tip">
+      <p><strong>Pro Tip:</strong> Debugging is a skill that improves with practice. The techniques you learn while
+        debugging your memory game will apply to all your future JavaScript projects.</p>
+    </div>
+  </section>
+
+  <section id="browser-console" class="card">
+    <h2>Using the Browser Console</h2>
+
+    <p>The browser console is your first line of defense when debugging JavaScript. Let's learn how to access and use it
+      effectively:</p>
+
+    <div class="step-container">
+      <div class="step-header">
+        <h3>Step 1: Opening the Console</h3>
+      </div>
+      <div class="step-content">
+        <p>To open the browser console:</p>
+        <ul>
+          <li><strong>Chrome/Edge:</strong> Press <code>Ctrl+Shift+J</code> (Windows/Linux) or <code>Cmd+Option+J</code>
+            (Mac)</li>
+          <li><strong>Firefox:</strong> Press <code>Ctrl+Shift+K</code> (Windows/Linux) or <code>Cmd+Option+K</code>
+            (Mac)</li>
+          <li><strong>Safari:</strong> Press <code>Cmd+Option+C</code></li>
+          <li><strong>Any browser:</strong> Right-click anywhere on the page, select "Inspect" or "Inspect Element,"
+            then click the "Console" tab</li>
+        </ul>
+        <img src="https://via.placeholder.com/800x400.png?text=Browser+Console+Screenshot" alt="Browser Console"
+          class="screenshot">
+      </div>
+    </div>
+
+    <div class="step-container">
+      <div class="step-header">
+        <h3>Step 2: Understanding Console Messages</h3>
+      </div>
+      <div class="step-content">
+        <p>The console displays different types of messages:</p>
+        <ul>
+          <li><strong>Errors (red):</strong> JavaScript errors that prevent code from running correctly</li>
+          <li><strong>Warnings (yellow):</strong> Potential issues that don't stop execution but might cause problems
+          </li>
+          <li><strong>Info (blue/white):</strong> General information and output from <code>console.log()</code></li>
+        </ul>
+
+        <p>Here's what these messages look like in the console:</p>
+        <div class="console-log">
+          <div class="error">Uncaught TypeError: Cannot read properties of undefined (reading 'sprite')</div>
+          <div class="warning">Resource interpreted as Image but transferred with MIME type text/html</div>
+          <div class="info">Card selected: Card ID 3, Pokémon: Pikachu</div>
+        </div>
+
+        <p>During your memory game development, pay careful attention to error messages. They provide valuable clues
+          about what's going wrong and where.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="console-methods" class="card">
+    <h2>Console Methods for Effective Debugging</h2>
+
+    <p>The <code>console</code> object provides several useful methods beyond just <code>console.log()</code>:</p>
+
+    <div class="code-sample">
+      <h4>Basic Console Methods</h4>
+      <pre><code>// Simple logging
+console.log('Card flipped:', card);
+
+// Warning message
+console.warn('Card already matched, ignoring click');
+
+// Error message
+console.error('Failed to load Pokémon data');
+
+// Information with styling
+console.info('Game initialized with 6 Pokémon pairs');
+
+// Assertion (only logs if condition is false)
+console.assert(pairs.length === 12, 'Wrong number of pairs created');
+
+// Clear the console
+console.clear();</code></pre>
+    </div>
+
+    <div class="code-sample">
+      <h4>Advanced Console Methods</h4>
+      <pre><code>// Group related messages
+console.group('Card Match Check');
+console.log('First card:', firstCard);
+console.log('Second card:', secondCard);
+console.log('Match result:', isMatch);
+console.groupEnd();
+
+// Table format for array data
+console.table(pokemonPairs);
+
+// Track how long operations take
+console.time('Shuffle operation');
+shuffleArray(pokemonPairs);
+console.timeEnd('Shuffle operation');
+
+// Count how many times something happens
+function handleCardClick() {
+  console.count('Card clicked');
+  // Rest of the function...
+}</code></pre>
+    </div>
+
+    <div class="tip">
+      <h4>Strategic Logging in Your Memory Game</h4>
+      <p>Add console logs at key points in your game to track state changes:</p>
+      <ul>
+        <li>When cards are created and Pokémon are assigned</li>
+        <li>When a card is flipped and which card it is</li>
+        <li>When checking for matches and the result</li>
+        <li>When the game state changes (new turn, game complete, etc.)</li>
+      </ul>
+    </div>
+
+    <div class="warning">
+      <h4>Remove Debug Logging Before Submission</h4>
+      <p>While console messages are helpful during development, remove them (or comment them out) before submitting your
+        final project. Excessive logging can impact performance and clutter the console.</p>
+    </div>
+  </section>
+
+  <section id="breakpoints" class="card">
+    <h2>Working with Breakpoints</h2>
+
+    <p>Console logging is useful, but breakpoints are the most powerful debugging tool at your disposal. They allow you
+      to pause code execution and inspect the state at that exact moment.</p>
+
+    <div class="step-container">
+      <div class="step-header">
+        <h3>Step 1: Setting Breakpoints</h3>
+      </div>
+      <div class="step-content">
+        <p>There are several ways to set breakpoints:</p>
+
+        <h4>Method 1: Using the Sources Panel</h4>
+        <ol>
+          <li>Open DevTools and go to the "Sources" tab</li>
+          <li>Find your JavaScript file in the file navigator (left panel)</li>
+          <li>Click on the line number where you want to pause execution</li>
+        </ol>
+        <img src="https://via.placeholder.com/800x400.png?text=Setting+Breakpoint+in+Sources+Panel"
+          alt="Setting Breakpoint in Sources Panel" class="screenshot">
+
+        <h4>Method 2: Using the debugger Statement</h4>
+        <p>Add the <code>debugger;</code> statement directly in your code where you want to pause:</p>
+        <div class="code-sample">
+          <pre><code>function checkForMatch() {
+  // This will pause execution when reached
+  debugger;
+
+  const firstPokemonData = JSON.parse(firstCard.dataset.pokemon);
+  const secondPokemonData = JSON.parse(secondCard.dataset.pokemon);
+
+  // Rest of the function...
+}</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-container">
+      <div class="step-header">
+        <h3>Step 2: Navigating While Paused</h3>
+      </div>
+      <div class="step-content">
+        <p>Once execution is paused at a breakpoint, you can use these controls to navigate:</p>
+        <ul>
+          <li><strong>Resume (F8):</strong> Continue execution until the next breakpoint</li>
+          <li><strong>Step Over (F10):</strong> Execute the current line and move to the next one</li>
+          <li><strong>Step Into (F11):</strong> If the current line calls a function, jump into that function</li>
+          <li><strong>Step Out (Shift+F11):</strong> Complete the current function and return to where it was called
+          </li>
+        </ul>
+        <img src="https://via.placeholder.com/800x400.png?text=Breakpoint+Navigation+Controls"
+          alt="Breakpoint Navigation Controls" class="screenshot">
+      </div>
+    </div>
+
+    <div class="step-container">
+      <div class="step-header">
+        <h3>Step 3: Inspecting Variables</h3>
+      </div>
+      <div class="step-content">
+        <p>While paused at a breakpoint, you can:</p>
+        <ul>
+          <li>Hover over variables in your code to see their current values</li>
+          <li>Use the "Scope" panel on the right to view all local and global variables</li>
+          <li>Type variable names in the console to inspect their values</li>
+          <li>Use the "Watch" panel to track specific variables as execution continues</li>
+        </ul>
+        <img src="https://via.placeholder.com/800x400.png?text=Inspecting+Variables+at+Breakpoint"
+          alt="Inspecting Variables at Breakpoint" class="screenshot">
+      </div>
+    </div>
+
+    <div class="step-container">
+      <div class="step-header">
+        <h3>Step 4: Conditional Breakpoints</h3>
+      </div>
+      <div class="step-content">
+        <p>Sometimes you only want to pause execution when certain conditions are met:</p>
+        <ol>
+          <li>Right-click on a line number in the Sources panel</li>
+          <li>Select "Add conditional breakpoint"</li>
+          <li>Enter a condition (e.g., <code>firstCard !== null && secondCard !== null</code>)</li>
+        </ol>
+        <p>Now the breakpoint will only pause execution when the condition is true.</p>
+        <img src="https://via.placeholder.com/800x400.png?text=Setting+Conditional+Breakpoint"
+          alt="Setting Conditional Breakpoint" class="screenshot">
+      </div>
+    </div>
+
+    <div class="tip">
+      <h4>Using Breakpoints in Your Memory Game</h4>
+      <p>Set breakpoints at these critical points in your game:</p>
+      <ul>
+        <li>Inside the card click handler to see what happens when a card is clicked</li>
+        <li>In the match checking function to examine both cards' data</li>
+        <li>When transitioning game states (e.g., when checking if the game is complete)</li>
+        <li>In error-prone areas like JSON parsing or API data handling</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="debugging-async" class="card">
+    <h2>Debugging Asynchronous Code</h2>
+
+    <p>Your memory game uses asynchronous functions for fetching Pokémon data, which can be tricky to debug. Here's how
+      to tackle async debugging:</p>
+
+    <div class="step-container">
+      <div class="step-header">
+        <h3>Understanding Async Execution</h3>
+      </div>
+      <div class="step-content">
+        <p>Asynchronous code doesn't execute linearly, which can make debugging challenging. For example:</p>
+        <div class="code-sample">
+          <pre><code>async function fetchAndAssignPokemon() {
+  console.log('1. Starting fetch');
+
+  const pokemonList = await PokemonService.fetchMultipleRandomPokemon(6);
+  console.log('3. Pokémon fetched');
+
+  // Process pokemonList...
+}
+
+console.log('2. Before function call');
+fetchAndAssignPokemon();
+console.log('4. After function call');</code></pre>
+        </div>
+        <p>The console output will show: 1, 2, 4, 3 — not in the order you might expect!</p>
+      </div>
+    </div>
+
+    <div class="step-container">
+      <div class="step-header">
+        <h3>Breakpoints in Async Code</h3>
+      </div>
+      <div class="step-content">
+        <p>You can still use breakpoints with async code. When you set a breakpoint inside an async function:</p>
+        <ol>
+          <li>Execution will pause when that line is reached, even if it's after an <code>await</code></li>
+          <li>You can step through the async function just like regular code</li>
+          <li>The call stack will show the async chain of function calls</li>
+        </ol>
+        <img src="https://via.placeholder.com/800x400.png?text=Async+Breakpoint+Call+Stack"
+          alt="Async Breakpoint Call Stack" class="screenshot">
+      </div>
+    </div>
+
+    <div class="step-container">
+      <div class="step-header">
+        <h3>Async Debugging Tips for Your Memory Game</h3>
+      </div>
+      <div class="step-content">
+        <ul>
+          <li><strong>Use try/catch blocks:</strong> Wrap async operations in try/catch to see errors that might be
+            swallowed</li>
+          <li><strong>Check network requests:</strong> Use the Network tab to ensure API requests are succeeding</li>
+          <li><strong>Chain console logs:</strong> Add console logs before and after await statements to track execution
+            flow</li>
+          <li><strong>Test API responses:</strong> Log the API response to verify you're getting the expected data
+            structure</li>
+        </ul>
+        <div class="code-sample">
+          <pre><code>async function fetchAndAssignPokemon() {
+  try {
+    console.log('Starting Pokémon fetch');
+
+    // Show what URL we're requesting
+    console.log('Fetching from:', `${API_BASE_URL}/pokemon`);
+
+    const pokemonList = await PokemonService.fetchMultipleRandomPokemon(6);
+
+    // Verify we got the right data
+    console.log('Fetched data:', pokemonList);
+    console.log('Number of Pokémon:', pokemonList.length);
+
+    // Further processing...
+  } catch (error) {
+    console.error('Error in fetchAndAssignPokemon:', error);
+  }
+}</code></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="common-issues" class="card">
+    <h2>Common Memory Game Issues and How to Debug Them</h2>
+
+    <div class="example-comparison">
+      <div class="example-box">
+        <h4>Problem: Cards Don't Flip</h4>
+        <p><strong>Symptoms:</strong> Clicking on cards doesn't cause them to flip or reveal Pokémon.</p>
+        <p><strong>Debugging Approach:</strong></p>
+        <ol>
+          <li>Check if click events are being registered by adding <code>console.log('Card clicked')</code> to your
+            click handler</li>
+          <li>Inspect the element to ensure the correct classes are being applied</li>
+          <li>Verify that CSS transitions or animations are working</li>
+          <li>Check for JavaScript errors in the console that might prevent event handling</li>
+        </ol>
+      </div>
+      <div class="example-box">
+        <h4>Problem: Pokémon Data Not Loading</h4>
+        <p><strong>Symptoms:</strong> Cards flip but don't show Pokémon images or data.</p>
+        <p><strong>Debugging Approach:</strong></p>
+        <ol>
+          <li>Check the Network tab to see if API requests are succeeding</li>
+          <li>Log the API response to verify data structure</li>
+          <li>Check that image URLs are correct</li>
+          <li>Verify JSON parsing is working correctly</li>
+          <li>Ensure DOM elements are being created and appended properly</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="example-comparison">
+      <div class="example-box">
+        <h4>Problem: Match Detection Not Working</h4>
+        <p><strong>Symptoms:</strong> Cards flip but don't stay flipped when matching pairs are selected.</p>
+        <p><strong>Debugging Approach:</strong></p>
+        <ol>
+          <li>Set a breakpoint in your match checking function</li>
+          <li>Verify both card objects have the correct Pokémon data</li>
+          <li>Check that the comparison logic is correct</li>
+          <li>Ensure the matched state is being properly applied to cards</li>
+        </ol>
+      </div>
+      <div class="example-box">
+        <h4>Problem: Cards Can Be Clicked During Animations</h4>
+        <p><strong>Symptoms:</strong> Clicking rapidly causes unexpected behavior or allows more than two cards to be
+          flipped.</p>
+        <p><strong>Debugging Approach:</strong></p>
+        <ol>
+          <li>Add console logging to track the <code>isProcessingPair</code> state</li>
+          <li>Verify the lock is being applied before animations start</li>
+          <li>Ensure the lock is being released after animations complete</li>
+          <li>Check for race conditions in async code</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="tip">
+      <h4>Use the Process of Elimination</h4>
+      <p>When debugging complex issues, break the problem down into smaller parts and test each part individually. Is it
+        a data problem? A UI problem? An event handling problem? Isolating the issue makes it easier to fix.</p>
+    </div>
+  </section>
+
+  <section id="debugging-events" class="card">
+    <h2>Debugging Event Listeners</h2>
+
+    <p>The memory game relies heavily on event listeners, particularly for card clicks. Here's how to debug
+      event-related issues:</p>
+
+    <div class="step-container">
+      <div class="step-header">
+        <h3>Step 1: Monitoring Events</h3>
+      </div>
+      <div class="step-content">
+        <p>Chrome DevTools allows you to monitor all events triggered on an element:</p>
+        <ol>
+          <li>Select an element in the Elements panel</li>
+          <li>Go to the Event Listeners tab in the right panel</li>
+          <li>See all attached event listeners, organized by event type</li>
+        </ol>
+        <img src="https://via.placeholder.com/800x400.png?text=Event+Listeners+Panel" alt="Event Listeners Panel"
+          class="screenshot">
+      </div>
+    </div>
+
+    <div class="step-container">
+      <div class="step-header">
+        <h3>Step 2: Debugging Event Propagation</h3>
+      </div>
+      <div class="step-content">
+        <p>Your memory game likely uses event delegation, where a single listener on the card grid handles all card
+          clicks. This approach can sometimes be tricky to debug:</p>
+        <div class="code-sample">
+          <pre><code>// Log the event target vs currentTarget
+cardGrid.addEventListener('click', function(event) {
+  console.log('Target (element that was clicked):', event.target);
+  console.log('Current Target (element with the listener):', event.currentTarget);
+
+  // Find the card element (might be a child of the clicked element)
+  let card = event.target;
+  while (card && !card.classList.contains('card')) {
+    card = card.parentElement;
+  }
+
+  if (card) {
+    console.log('Found card element:', card);
+    // Handle the card click...
+  }
+});</code></pre>
+        </div>
+
+        <div class="tip">
+          <p>If events aren't triggering as expected, add <code>console.log(event)</code> to your event handler to see
+            details about the event, including which element was clicked and the event's propagation path.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-container">
+      <div class="step-header">
+        <h3>Step 3: Breaking on Events</h3>
+      </div>
+      <div class="step-content">
+        <p>You can set DevTools to break execution whenever a specific type of event occurs:</p>
+        <ol>
+          <li>Go to the Sources panel</li>
+          <li>Click on "Event Listener Breakpoints" in the right sidebar</li>
+          <li>Expand categories like "Mouse" or "Control" and check events you want to break on</li>
+        </ol>
+        <img src="https://via.placeholder.com/800x400.png?text=Event+Listener+Breakpoints"
+          alt="Event Listener Breakpoints" class="screenshot">
+        <p>This is especially useful for tracking down unexpected event behavior or determining which events are firing
+          in what order.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="performance" class="card">
+    <h2>Performance Debugging</h2>
+
+    <p>While your memory game may not be performance-intensive, it's good practice to learn how to identify and fix
+      performance issues:</p>
+
+    <div class="step-container">
+      <div class="step-header">
+        <h3>Using Performance Monitoring</h3>
+      </div>
+      <div class="step-content">
+        <p>Chrome DevTools includes a Performance panel that lets you record and analyze your game's performance:</p>
+        <ol>
+          <li>Open DevTools and go to the Performance tab</li>
+          <li>Click the record button (⏺️) and interact with your game</li>
+          <li>Stop recording and analyze the results</li>
+        </ol>
+        <img src="https://via.placeholder.com/800x400.png?text=Performance+Panel+Recording"
+          alt="Performance Panel Recording" class="screenshot">
+        <p>This will show you:</p>
+        <ul>
+          <li>JavaScript execution time</li>
+          <li>Rendering and painting operations</li>
+          <li>Memory usage</li>
+          <li>Potential bottlenecks</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="step-container">
+      <div class="step-header">
+        <h3>Performance Tips for Memory Games</h3>
+      </div>
+      <div class="step-content">
+        <ul>
+          <li><strong>Minimize DOM operations:</strong> Batch DOM updates together rather than making many small changes
+          </li>
+          <li><strong>Use efficient selectors:</strong> <code>getElementById()</code> and <code>querySelector()</code>
+            are faster than iterating through elements</li>
+          <li><strong>Cache DOM references:</strong> Store elements you use frequently in variables instead of querying
+            the DOM repeatedly</li>
+          <li><strong>Be careful with animations:</strong> Complex animations can slow down the game, especially on
+            mobile devices</li>
+        </ul>
+        <div class="code-sample">
+          <h4>Before: Inefficient DOM Updates</h4>
+          <pre><code>// This updates the DOM on every iteration
+function updateAllCards() {
+  for (let i = 0; i < cards.length; i++) {
+    const card = document.querySelector(`[data-index="${i}"]`);
+    card.textContent = `Card ${i}`;
+    card.style.backgroundColor = getCardColor(i);
+    card.classList.add('updated');
+  }
+}</code></pre>
+        </div>
+        <div class="code-sample">
+          <h4>After: Optimized DOM Updates</h4>
+          <pre><code>// This minimizes DOM operations
+function updateAllCards() {
+  // Cache card references
+  const cardElements = document.querySelectorAll('.card');
+
+  for (let i = 0; i < cards.length; i++) {
+    // Build all changes before applying them
+    const card = cardElements[i];
+    const updates = {
+      text: `Card ${i}`,
+      color: getCardColor(i),
+      addClass: 'updated'
+    };
+
+    // Apply all changes at once
+    card.textContent = updates.text;
+    card.style.backgroundColor = updates.color;
+    card.classList.add(updates.addClass);
+  }
+}</code></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="debugging-workflow" class="card">
+    <h2>Effective Debugging Workflow</h2>
+
+    <p>Debugging is most effective when you follow a structured approach. Here's a workflow you can use for your memory
+      game:</p>
+
+    <ol>
+      <li><strong>Reproduce the bug:</strong> Find a reliable way to make the bug happen</li>
+      <li><strong>Isolate the problem:</strong> Determine which part of your code is causing the issue</li>
+      <li><strong>Inspect the state:</strong> Use console logs or breakpoints to see what's happening</li>
+      <li><strong>Form a hypothesis:</strong> Guess what might be causing the bug</li>
+      <li><strong>Test your fix:</strong> Make a change and see if it resolves the issue</li>
+      <li><strong>Verify all cases:</strong> Make sure your fix doesn't break anything else</li>
+    </ol>
+
+    <div class="example-comparison">
+      <div class="example-box">
+        <h4>Example Debugging Session</h4>
+        <p><strong>Bug:</strong> Sometimes cards remain flipped even when they don't match.</p>
+        <ol>
+          <li><strong>Reproduce:</strong> Click quickly on three cards in succession</li>
+          <li><strong>Isolate:</strong> Add console logs in the card click handler and match checking function</li>
+          <li><strong>Inspect:</strong> Set a breakpoint in <code>handleNonMatch()</code> and observe the state</li>
+          <li><strong>Hypothesis:</strong> The lock flag isn't preventing new clicks during the delay</li>
+          <li><strong>Test:</strong> Modify the click handler to check the lock flag more strictly</li>
+          <li><strong>Verify:</strong> Test normal matching, non-matching, and rapid clicking scenarios</li>
+        </ol>
+      </div>
+      <div class="example-box">
+        <h4>Bug-Fixing Checklist</h4>
+        <ul>
+          <li>What is the expected behavior?</li>
+          <li>What is the actual behavior?</li>
+          <li>What exactly triggers the bug?</li>
+          <li>What state is the application in when the bug occurs?</li>
+          <li>What error messages (if any) appear?</li>
+          <li>Does the bug happen consistently or intermittently?</li>
+          <li>Does the bug affect other parts of the application?</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tip">
+      <h4>Rubber Duck Debugging</h4>
+      <p>One effective technique is to explain your bug out loud, step by step, as if you were explaining it to someone
+        else (or a rubber duck on your desk). Often, the act of verbalizing the problem helps you spot the solution.</p>
+    </div>
+  </section>
+
+  <section id="exercises" class="card">
+    <h2>Practical Debugging Exercises for Your Memory Game</h2>
+
+    <p>Try these debugging exercises to practice your skills:</p>
+
+    <div class="step-container">
+      <div class="step-header">
+        <h3>Exercise 1: Trace Card Selection Flow</h3>
+      </div>
+      <div class="step-content">
+        <ol>
+          <li>Add strategic console.log statements in your card selection code</li>
+          <li>Click through a complete turn cycle (selecting two cards)</li>
+          <li>Observe the sequence of function calls and state changes</li>
+          <li>Draw a flowchart of how card selection and matching work</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="step-container">
+      <div class="step-header">
+        <h3>Exercise 2: Debug with Breakpoints</h3>
+      </div>
+      <div class="step-content">
+        <ol>
+          <li>Set a breakpoint in your match checking function</li>
+          <li>Play the game until you hit the breakpoint</li>
+          <li>Use the step controls to walk through the function line by line</li>
+          <li>Observe how variables change at each step</li>
+          <li>Try setting conditional breakpoints for specific scenarios</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="step-container">
+      <div class="step-header">
+        <h3>Exercise 3: Deliberately Create and Fix a Bug</h3>
+      </div>
+      <div class="step-content">
+        <ol>
+          <li>Introduce a subtle bug into your code (e.g., incorrect comparison in match checking)</li>
+          <li>Try to find the bug using the debugging techniques you've learned</li>
+          <li>Fix the bug and verify your solution works</li>
+          <li>Document the process you used to find and fix the bug</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section id="takeaways" class="card">
+    <h2>Key Takeaways</h2>
+
+    <ul>
+      <li><strong>Use the Console:</strong> Make the browser console your first debugging tool</li>
+      <li><strong>Strategic Logging:</strong> Place console.log statements at key points in your code</li>
+      <li><strong>Master Breakpoints:</strong> Learn to use breakpoints to pause execution and inspect state</li>
+      <li><strong>Understand Async:</strong> Pay special attention to debugging asynchronous operations</li>
+      <li><strong>Follow a Process:</strong> Adopt a systematic debugging workflow</li>
+      <li><strong>Practice Regularly:</strong> Debugging is a skill that improves with practice</li>
+    </ul>
+
+    <p>With these debugging skills, you'll be able to identify and fix issues in your memory game quickly and
+      efficiently. Remember that every bug is an opportunity to learn and improve your programming skills.</p>
+  </section>
+
+  <!-- Back to top button -->
+  <a href="#" class="back-to-top" title="Back to Top">↑</a>
+
+  <div class="footer">
+    <p>Pokémon and Pokémon character names are trademarks of Nintendo. This educational project is not affiliated with
+      or endorsed by Nintendo, The Pokémon Company, or Game Freak.</p>
+    <p>PokeAPI data sourced from <a href="https://pokeapi.co/">pokeapi.co</a></p>
+  </div>
+</body>
+
+</html>

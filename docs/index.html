@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pokémon Memory Game Documentation</title>
+  <link rel="shortcut icon" href="./microscope.png" type="image/png">
+  <link rel="stylesheet" href="header.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="container">
+      <nav class="site-nav">
+        <div class="logo">
+          <a href="index.html">
+            <img src="./microscope.png" alt="microscope drawing" class="logo-img">
+            <span>Pokémon Memory Game</span>
+          </a>
+        </div>
+        <ul class="nav-links">
+          <li><a href="index.html" class="nav-link">Home</a></li>
+          <li><a href="assignment.html" class="nav-link">Assignment</a></li>
+
+          <li><a href="git.html" class="nav-link">Git Branch</a></li>
+          <li><a href="errors.html" class="nav-link">Handle Errors</a></li>
+          <li><a href="gamedev.html" class="nav-link">Game Dev</a></li>
+          <li><a href="debugging.html" class="nav-link">JS Debugging</a></li>
+          <li><a href="esm-vite.html" class="nav-link">ES Modules & Vite</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+  <div class="header">
+    <img src="./microscope.png" alt="microscope drawing">
+    <h1>Pokémon Memory Game Project</h1>
+    <p>Welcome to the documentation for the Pokémon Memory Game project. This tutorial series will guide you through
+      transforming the Pokémon Card Flip app into a fully functional memory matching game.</p>
+  </div>
+
+  <div class="card">
+    <h2>Memory Game Assignment</h2>
+    <p>This assignment guides you through transforming the Pokémon Card Flip app into a memory matching game. You'll
+      implement core game mechanics step-by-step, following best practices for JavaScript development and git workflow.
+    </p>
+    <p>The assignment includes:</p>
+    <ul>
+      <li>Creating card pairs with shuffling</li>
+      <li>Implementing card selection tracking</li>
+      <li>Adding match detection</li>
+      <li>Detecting game completion</li>
+      <li>Code review and refactoring guidance</li>
+    </ul>
+    <a href="assignment.html" class="btn">View Assignment</a>
+  </div>
+
+  <div class="card">
+    <h2>Deep and Shallow Copying in JavaScript</h2>
+    <p>Learn the critical differences between shallow and deep copying in JavaScript, with a focus on the
+      structuredClone() method needed for our card shuffling function. Understand how object references work and when to
+      use different copying techniques.</p>
+    <p>Topics covered include:</p>
+    <ul>
+      <li>Understanding object references vs. values</li>
+      <li>Shallow copying with spread operator and Object.assign()</li>
+      <li>Deep copying with structuredClone()</li>
+      <li>Handling nested objects in copies</li>
+      <li>Best practices for immutable data handling</li>
+    </ul>
+    <a href="copying.html" class="btn">Read Tutorial</a>
+  </div>
+
+  <div class="card">
+    <h2>Effective Git Branching Strategies</h2>
+    <p>Master the git workflow needed for this project by learning proper branching strategies. This tutorial covers
+      creating feature branches, making atomic commits, and managing your code throughout the development process.</p>
+    <p>Topics covered include:</p>
+    <ul>
+      <li>Creating and switching branches</li>
+      <li>Writing meaningful commit messages</li>
+      <li>Testing branches before merging</li>
+      <li>Handling merge conflicts</li>
+      <li>Proper branch naming conventions</li>
+    </ul>
+    <a href="git.html" class="btn">Learn Git Workflow</a>
+  </div>
+
+  <div class="card">
+    <h2>Graceful Failures in User Interfaces</h2>
+    <p>Discover how to implement error handling that enhances rather than disrupts the user experience. Learn techniques
+      for defensive programming and providing user-friendly feedback when things go wrong.</p>
+    <p>Topics covered include:</p>
+    <ul>
+      <li>Try/catch patterns for async functions</li>
+      <li>Defensive programming with guard clauses</li>
+      <li>Creating user-friendly error messages</li>
+      <li>Recovery strategies after errors</li>
+      <li>Maintaining state during failures</li>
+    </ul>
+    <a href="errors.html" class="btn">Explore Error Handling</a>
+  </div>
+
+  <div class="card">
+    <h2>Game Development Patterns in JavaScript</h2>
+    <p>Learn essential patterns for browser-based game development that you'll apply to the memory game. This tutorial
+      focuses specifically on patterns relevant to turn-based card games like our memory matching project.</p>
+    <p>Topics covered include:</p>
+    <ul>
+      <li>State management for card tracking</li>
+      <li>Turn-based mechanics implementation</li>
+      <li>Handling delayed actions (card flipping)</li>
+      <li>Game completion detection</li>
+      <li>Player feedback systems</li>
+    </ul>
+    <a href="gamedev.html" class="btn">Study Game Patterns</a>
+  </div>
+
+  <div class="card">
+    <h2>Debugging JavaScript Code in the Browser</h2>
+    <p>Master the essential browser debugging tools that will help you identify and fix issues in your memory game
+      implementation. Learn practical techniques for tracking down bugs efficiently.</p>
+    <p>Topics covered include:</p>
+    <ul>
+      <li>Using breakpoints in browser DevTools</li>
+      <li>Debugging asynchronous code</li>
+      <li>Watching variables during state changes</li>
+      <li>Debugging event listeners</li>
+      <li>Common debugging patterns for games</li>
+    </ul>
+    <a href="debugging.html" class="btn">Debug Like a Pro</a>
+  </div>
+
+  <div class="footer">
+    <p>Pokémon and Pokémon character names are trademarks of Nintendo. This educational project is not affiliated with
+      or endorsed by Nintendo, The Pokémon Company, or Game Freak.</p>
+    <p>PokeAPI data sourced from <a href="https://pokeapi.co/">pokeapi.co</a></p>
+  </div>
+</body>
+
+</html>
