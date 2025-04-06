@@ -32,7 +32,7 @@
     "vite": "^6.2.5"
   },
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=16.0.0"
   },
   "repository": {
     "type": "git",

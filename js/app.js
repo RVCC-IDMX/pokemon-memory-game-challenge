@@ -15,7 +15,7 @@ const CARD_COUNT = 12;
 let cards = [];
 
 // Debug flag - set to true to simulate slower loading
-const DEBUG_SHOW_SPINNER = true;
+const DEBUG_SHOW_SPINNER = false;
 const LOADING_DELAY = 4000; // 2 seconds delay
 
 /**
