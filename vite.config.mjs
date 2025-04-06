@@ -14,7 +14,7 @@ export default defineConfig({
   root: './',
 
   // Directory to serve as plain static assets
-  publicDir: 'assets',
+  publicDir: 'public',
 
   // Configure the server
   server: {
@@ -47,7 +47,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
-      '@assets': path.resolve(__dirname, './assets'),
+      '@assets': path.resolve(__dirname, './public/assets'),
       '@js': path.resolve(__dirname, './js'),
       '@css': path.resolve(__dirname, './css')
     }
